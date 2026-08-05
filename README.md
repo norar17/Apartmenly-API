@@ -1,4 +1,4 @@
-# Apartment Rental Management System — Backend (v2, feature-folder architecture)
+# Apartment Rental Management System — Backend ( feature-folder architecture)
 
 Restructured to follow the architecture of [norar17/Nova-Api](https://github.com/norar17/Nova-Api):
 5 projects instead of 6 (Persistence merged into Infrastructure), feature
