@@ -1,0 +1,22 @@
+## .NET
+bin/
+obj/
+.vs/
+*.user
+*.suo
+Logs/
+*.log
+
+## Secrets - NEVER commit these
+appsettings.Local.json
+appsettings.Development.json
+appsettings.Production.json
+.env
+.env.*
+*.pfx
+
+## OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
