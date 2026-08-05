@@ -9,12 +9,6 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Render's containers hit the OS inotify-instance limit almost immediately
-// because ASP.NET Core's default config setup watches appsettings.json for
-// live-reload via FileSystemWatcher. Not needed here - config comes from
-// env vars in every deployed environment - so config sources are rebuilt
-// without file watching, which is what was actually crashing the app on
-// startup (System.IO.IOException: configured user limit on inotify instances).
 builder.Configuration.Sources.Clear();
 builder.Configuration
     .SetBasePath(builder.Environment.ContentRootPath)
@@ -30,11 +24,6 @@ builder.Configuration
     .AddEnvironmentVariables()
     .AddCommandLine(args);
 
-// Fixed port for local (non-container) dev only. Deployment platforms and
-// Docker set their own $PORT / ASPNETCORE_URLS, and the official .NET
-// container images set DOTNET_RUNNING_IN_CONTAINER=true automatically -
-// checking it here means this stays safe even if someone runs the
-// container locally with ASPNETCORE_ENVIRONMENT=Development.
 var isRunningInContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
 if (builder.Environment.IsDevelopment() && !isRunningInContainer)
 {
@@ -103,9 +92,6 @@ if (app.Environment.IsDevelopment() && !isRunningInContainer)
 }
 else
 {
-    // Render (and most PaaS platforms) terminate TLS at their edge and
-    // forward plain HTTP to the container - trust their proxy headers so
-    // the app still sees the real scheme/host instead of redirect-looping.
     app.UseForwardedHeaders(new ForwardedHeadersOptions
     {
         ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
@@ -120,8 +106,6 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");
 
-// Applying migrations is safe (and necessary) in every environment.
-// Demo data is Development-only.
 await SeedData.MigrateAsync(app.Services);
 
 if (app.Environment.IsDevelopment())
